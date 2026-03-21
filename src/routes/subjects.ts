@@ -2,26 +2,34 @@ import { and, desc, eq, getTableColumns, ilike, or, sql } from "drizzle-orm";
 import express, { Request, Response } from "express";
 import { departments, subjects } from "../db/schema";
 import { db } from "../db";
-import { count } from "node:console";
 
 const router = express.Router();
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
 
 router.get("/", async (req: Request, res: Response) => {
   try {
     const { search, department, page = 1, limit = 10 } = req.query;
 
-    const currentPage = Math.max(1, parseInt(page as string));
-    const limitPerPage = Math.max(1, parseInt(limit as string));
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const currentPage = Math.max(1, Number.isNaN(parsedPage) ? 1 : parsedPage);
+    const limitPerPage = Math.max(1, Number.isNaN(parsedLimit) ? 1 : parsedLimit);
 
     const offset = (currentPage - 1) * limitPerPage;
     const filterConditions = [];
 
     // If search query is provided, filter by subject name or code
     if (search) {
+      const escapedSearch = escapeLikePattern(String(search));
+
       filterConditions.push(
         or(
-          ilike(subjects.name, `%${search}%`),
-          ilike(subjects.code, `%${search}%`),
+          ilike(subjects.name, `%${escapedSearch}%`),
+          ilike(subjects.code, `%${escapedSearch}%`),
         ),
       );
     }
@@ -72,7 +80,7 @@ router.get("/", async (req: Request, res: Response) => {
 
 router.post("/", async (req: Request, res: Response) => {
   try {
-    res.send("Create a new subject");
+    res.status(501).json({ message: "Not implemented" });
   } catch (error) {
     console.error("Error creating subject:", error);
     res.status(500).json({ message: "Failed to create subject" });

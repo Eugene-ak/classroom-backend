@@ -30,6 +30,7 @@ Create `.env` in this directory (`classroom-backend/`):
 ```env
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB_NAME
 PORT=3000
+FRONTEND_URL=http://localhost:5173
 ```
 
 ## Database Migrations
