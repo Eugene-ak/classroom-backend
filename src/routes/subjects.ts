@@ -36,7 +36,8 @@ router.get("/", async (req: Request, res: Response) => {
 
     // If department filter is provided, filter by department name
     if (department) {
-      filterConditions.push(ilike(departments.name, `%${department}%`));
+      const escapedDepartment = escapeLikePattern(String(department));
+      filterConditions.push(ilike(departments.name, `%${escapedDepartment}%`));
     }
 
     // Combine all filter conditions using AND
